@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kuis Fisika Dasar – Pertemuan ke-5: Hukum Newton</title>
+<style>
+:root{
+  --navy:#0b2a5b; --navy2:#163f85; --blue:#e8eefb; --orange:#e8711a;
+  --ink:#1b2433; --muted:#5b6678; --line:#d5dcea; --bg:#f3f6fc; --card:#ffffff;
+  --ok:#16794a; --okbg:#e5f6ec; --bad:#b3261e; --badbg:#fdeceb;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55;font-size:16px}
+.wrap{max-width:860px;margin:0 auto;padding:20px 16px 48px}
+header.top{background:var(--navy);color:#fff;border-bottom:5px solid var(--orange)}
+header.top .wrap{padding-top:22px;padding-bottom:22px}
+header.top h1{margin:0 0 4px;font-size:1.55rem;line-height:1.25}
+header.top p{margin:0;opacity:.85;font-size:.95rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:22px;margin-top:18px}
+.card h2{margin:0 0 6px;font-size:1.2rem;color:var(--navy)}
+.hint{color:var(--muted);font-size:.92rem;margin:0 0 14px}
+label{display:block;font-weight:600;margin:14px 0 5px;font-size:.95rem}
+input[type=text],select{width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:8px;font:inherit;background:#fff;color:var(--ink)}
+input:focus,select:focus,button:focus-visible,.opt:focus-visible,.nav-btn:focus-visible{outline:3px solid #8db1f0;outline-offset:1px}
+.err{color:var(--bad);font-size:.9rem;margin-top:6px;min-height:1.2em}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1.5px solid var(--navy);padding:10px 18px;font-weight:600;background:#fff;color:var(--navy)}
+button.primary{background:var(--navy);color:#fff}
+button.primary:hover{background:var(--navy2)}
+button.accent{background:var(--orange);border-color:var(--orange);color:#fff}
+button:disabled{opacity:.45;cursor:not-allowed}
+.rules{margin:14px 0 0;padding-left:20px;color:var(--muted);font-size:.93rem}
+.rules li{margin:3px 0}
+.hidden{display:none!important}
+
+/* quiz */
+.statusbar{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;font-size:.92rem;color:var(--muted)}
+.progress{height:8px;background:var(--blue);border-radius:99px;overflow:hidden;margin:10px 0 0}
+.progress>div{height:100%;background:var(--orange);width:0;transition:width .25s}
+.qtext{font-size:1.1rem;font-weight:600;margin:6px 0 16px}
+.qnum{color:var(--orange);font-weight:700;font-size:.95rem}
+.opt{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;font-weight:400;border:1.5px solid var(--line);background:#fff;color:var(--ink);padding:12px 14px;margin-bottom:10px;border-radius:9px}
+.opt:hover{border-color:var(--navy2);background:#f7f9fe}
+.opt .k{flex:0 0 28px;height:28px;border-radius:50%;background:var(--blue);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem}
+.opt.sel{border-color:var(--navy);background:var(--blue)}
+.opt.sel .k{background:var(--navy);color:#fff}
+.controls{display:flex;justify-content:space-between;gap:10px;margin-top:8px;flex-wrap:wrap}
+.grid{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;margin-top:14px}
+.nav-btn{padding:6px 0;font-size:.85rem;border-radius:6px;border:1.5px solid var(--line);background:#fff;color:var(--ink);font-weight:600}
+.nav-btn.done{background:var(--blue);border-color:var(--navy2);color:var(--navy)}
+.nav-btn.cur{background:var(--navy);color:#fff;border-color:var(--navy)}
+@media(max-width:560px){.grid{grid-template-columns:repeat(6,1fr)}}
+
+/* result */
+.score-box{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.score-num{font-size:3.4rem;font-weight:800;color:var(--navy);line-height:1}
+.score-num small{font-size:1.1rem;color:var(--muted);font-weight:600}
+.badge{display:inline-block;padding:4px 12px;border-radius:99px;font-weight:700;font-size:.9rem}
+.badge.good{background:var(--okbg);color:var(--ok)}
+.badge.mid{background:#fff3e0;color:#9a5300}
+.badge.low{background:var(--badbg);color:var(--bad)}
+table.info{border-collapse:collapse;width:100%;margin-top:14px;font-size:.95rem}
+table.info td{padding:6px 8px;border-bottom:1px solid var(--line)}
+table.info td:first-child{width:150px;color:var(--muted)}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.stat{flex:1 1 120px;border:1px solid var(--line);border-radius:8px;padding:10px 12px;text-align:center}
+.stat b{display:block;font-size:1.4rem}
+.stat.ok b{color:var(--ok)} .stat.bad b{color:var(--bad)} .stat.nil b{color:var(--muted)}
+.review{border:1px solid var(--line);border-radius:10px;padding:16px;margin-top:14px;background:#fff;break-inside:avoid;page-break-inside:avoid}
+.review.correct{border-left:6px solid var(--ok)}
+.review.wrong{border-left:6px solid var(--bad)}
+.review.blank{border-left:6px solid var(--muted)}
+.rv-head{display:flex;justify-content:space-between;gap:8px;font-weight:700;font-size:.9rem;margin-bottom:6px}
+.rv-head .tag.correct{color:var(--ok)} .rv-head .tag.wrong{color:var(--bad)} .rv-head .tag.blank{color:var(--muted)}
+.rv-q{font-weight:600;margin:0 0 10px}
+.rv-opt{padding:7px 10px;border-radius:7px;margin-bottom:5px;font-size:.95rem;border:1px solid transparent}
+.rv-opt.right{background:var(--okbg);border-color:#9bd3b4}
+.rv-opt.wrongpick{background:var(--badbg);border-color:#efb3ae}
+.pemb{margin-top:10px;padding:10px 12px;background:var(--blue);border-radius:8px;font-size:.93rem}
+.pemb b{color:var(--navy)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.filter{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.filter button.on{background:var(--navy);color:#fff}
+.note{font-size:.88rem;color:var(--muted);margin-top:10px}
+footer{color:var(--muted);font-size:.85rem;text-align:center;margin-top:28px}
+.print-only{display:none}
+
+@media print{
+  @page{size:A4;margin:14mm}
+  body{background:#fff;font-size:12px}
+  header.top,.no-print,#intro,#quiz,footer{display:none!important}
+  .print-only{display:block}
+  .wrap{padding:0;max-width:none}
+  .card{border:none;padding:0;margin-top:8px}
+  .review{break-inside:avoid;page-break-inside:avoid;margin-top:8px;padding:10px}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .print-title{background:var(--navy);color:#fff;padding:10px 14px;border-bottom:4px solid var(--orange);margin-bottom:10px}
+  .print-title h1{margin:0;font-size:1.25rem}
+  .print-title p{margin:2px 0 0;font-size:.85rem;opacity:.9}
+}
+</style>
+</head>
+<body>
+
+<header class="top no-print">
+  <div class="wrap">
+    <h1>Kuis Fisika Dasar – Pertemuan ke-5</h1>
+    <p>Mekanika Sistem Industri: Memahami Hukum Newton · 30 soal pilihan ganda</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- IDENTITAS -->
+  <section id="intro" class="card">
+    <h2>Identitas Mahasiswa</h2>
+    <p class="hint">Isi data berikut dengan benar sebelum memulai kuis.</p>
+    <label for="nama">Nama Lengkap</label>
+    <input type="text" id="nama" autocomplete="name" placeholder="Contoh: Budi Santoso">
+    <label for="nim">NIM</label>
+    <input type="text" id="nim" inputmode="numeric" autocomplete="off" placeholder="Contoh: 12240001">
+    <label for="prodi">Program Studi</label>
+    <select id="prodi">
+      <option value="">— Pilih program studi —</option>
+      <option>Teknik Industri</option>
+      <option>Teknologi Komputer</option>
+      <option>Teknik Informatika</option>
+      <option>Sistem Informasi</option>
+      <option>Sistem Informasi Akuntansi</option>
+      <option>Manajemen Informatika</option>
+      <option value="__lain">Lainnya…</option>
+    </select>
+    <input type="text" id="prodiLain" class="hidden" style="margin-top:8px" placeholder="Tuliskan program studi Anda">
+    <div class="err" id="introErr" role="alert"></div>
+    <ul class="rules">
+      <li>Terdiri dari 30 soal pilihan ganda (A–D); setiap soal bernilai sama, skor maksimal 100.</li>
+      <li>Kuis hanya dapat dikerjakan <b>satu kali</b> untuk setiap NIM pada perangkat ini.</li>
+      <li>Jangan menutup atau memuat ulang halaman selama mengerjakan, karena jawaban belum tersimpan.</li>
+      <li>Setelah selesai, nilai dan pembahasan tampil otomatis dan dapat disimpan ke PDF.</li>
+    </ul>
+    <div class="actions"><button class="primary" id="btnStart">Mulai Kuis</button></div>
+  </section>
+
+  <!-- KUIS -->
+  <section id="quiz" class="hidden">
+    <div class="card">
+      <div class="statusbar">
+        <span id="who"></span>
+        <span id="answeredCount"></span>
+      </div>
+      <div class="progress"><div id="bar"></div></div>
+    </div>
+    <div class="card">
+      <div class="qnum" id="qnum"></div>
+      <div class="qtext" id="qtext"></div>
+      <div id="opts"></div>
+      <div class="controls">
+        <button id="btnPrev">Sebelumnya</button>
+        <button class="primary" id="btnNext">Selanjutnya</button>
+      </div>
+    </div>
+    <div class="card">
+      <b>Navigasi soal</b>
+      <div class="grid" id="grid"></div>
+      <div class="actions"><button class="accent" id="btnFinish">Selesai &amp; Kumpulkan</button></div>
+      <div class="err" id="quizErr" role="alert"></div>
+    </div>
+  </section>
+
+  <!-- HASIL -->
+  <section id="result" class="hidden">
+    <div class="print-only print-title">
+      <h1>Hasil Kuis Fisika Dasar – Pertemuan ke-5</h1>
+      <p>Mekanika Sistem Industri: Memahami Hukum Newton</p>
+    </div>
+    <div class="card">
+      <h2>Hasil Kuis</h2>
+      <div class="score-box">
+        <div><div class="score-num"><span id="scoreVal">0</span><small> / 100</small></div></div>
+        <div><span class="badge" id="predikat"></span><div class="note" id="doneNote"></div></div>
+      </div>
+      <table class="info">
+        <tr><td>Nama</td><td id="rNama"></td></tr>
+        <tr><td>NIM</td><td id="rNim"></td></tr>
+        <tr><td>Program Studi</td><td id="rProdi"></td></tr>
+        <tr><td>Waktu pengerjaan</td><td id="rWaktu"></td></tr>
+      </table>
+      <div class="stats">
+        <div class="stat ok"><b id="sBenar">0</b>Benar</div>
+        <div class="stat bad"><b id="sSalah">0</b>Salah</div>
+        <div class="stat nil"><b id="sKosong">0</b>Tidak dijawab</div>
+      </div>
+      <div class="actions no-print">
+        <button class="primary" id="btnPdf">Simpan sebagai PDF</button>
+      </div>
+      <div class="note no-print">Pada jendela cetak, pilih tujuan “Simpan sebagai PDF” (Save as PDF).</div>
+    </div>
+
+    <div class="card">
+      <h2>Pembahasan Soal</h2>
+      <div class="filter no-print">
+        <button class="on" data-f="all">Semua</button>
+        <button data-f="wrong">Salah / kosong</button>
+        <button data-f="correct">Benar</button>
+      </div>
+      <div id="reviewList"></div>
+    </div>
+  </section>
+
+  <footer>Fisika Dasar · Teknik Industri · Materi: Hukum Newton dan Macam-macam Gaya</footer>
+</main>
+
+<script>
+(function(){
+"use strict";
+
+var QUESTIONS = [
+{q:"Mengapa gaya disebut sebagai besaran vektor?",
+ o:["Karena hanya memiliki besar tanpa arah","Karena memiliki besar dan arah","Karena hanya memiliki arah tanpa besar","Karena hanya bergantung pada massa benda"],a:1,
+ e:"Gaya adalah besaran yang memiliki <b>besar dan arah</b>, sehingga termasuk besaran vektor. Gaya merupakan penyebab utama terjadinya perubahan gerak dalam suatu sistem mekanis."},
+{q:"Mesin press memberikan gaya tekan yang kuat pada pelat logam sehingga pelat berubah bentuk. Efek gaya yang ditunjukkan adalah …",
+ o:["Mengubah arah gerak benda","Mengubah massa benda secara permanen","Mengubah bentuk benda","Menyebabkan percepatan beban dari posisi diam"],a:2,
+ e:"Pada slide “Gaya sebagai Vektor Penggerak Sistem”, mesin press adalah contoh gaya yang <b>mengubah bentuk</b>. Lengan robot contoh mengubah arah gerak, sedangkan motor yang menggerakkan beban dari diam adalah contoh menyebabkan percepatan."},
+{q:"Bagaimana hubungan antara arah gaya resultan dan arah percepatan benda?",
+ o:["Arah gaya sama dengan arah percepatan","Arah gaya berlawanan dengan arah percepatan","Arah gaya selalu tegak lurus terhadap arah percepatan","Tidak ada hubungan antara keduanya"],a:0,
+ e:"Arah gaya = arah percepatan. Vektor dorongan sejajar dengan lintasan gerak benda, sesuai Hukum II Newton ΣF = m·a (m skalar positif, sehingga a searah ΣF)."},
+{q:"Satuan gaya dalam Sistem Internasional (SI), yaitu Newton (N), jika dinyatakan dalam satuan dasar adalah …",
+ o:["kg·m/s","kg·m²/s²","g·cm/s²","kg·m/s²"],a:3,
+ e:"Dari F = m × a, maka 1 N = 1 kg × 1 m/s² = <b>1 kg·m/s²</b>. Sementara g·cm/s² adalah dyne pada sistem CGS."},
+{q:"Hubungan satuan Newton (SI) dan dyne (CGS) yang benar adalah …",
+ o:["1 N = 10³ dyne","1 N = 10⁵ dyne","1 N = 10⁻⁵ dyne","1 N = 10⁷ dyne"],a:1,
+ e:"1 N = 1 kg·m/s² = 1000 g × 100 cm/s² = 10⁵ g·cm/s² = <b>10⁵ dyne</b> (100.000 dyne). Sebaliknya, 1 dyne = 10⁻⁵ N."},
+{q:"Sebuah gaya sebesar 15 N. Berapakah nilainya dalam dyne?",
+ o:["150.000 dyne","15.000 dyne","1.500.000 dyne","15.000.000 dyne"],a:2,
+ e:"F(dyne) = F(N) × 100.000 = 15 × 100.000 = <b>1.500.000 dyne</b>."},
+{q:"Sebuah gaya sebesar 250.000 dyne. Berapakah nilainya dalam Newton?",
+ o:["2,5 N","25 N","0,25 N","250 N"],a:0,
+ e:"F(N) = F(dyne) ÷ 100.000 = 250.000 ÷ 100.000 = <b>2,5 N</b>."},
+{q:"Pernyataan yang paling tepat mengenai massa dan inersia adalah …",
+ o:["Massa bergantung pada tempat, sedangkan inersia tidak","Massa yang besar berarti inersia kecil sehingga mudah dipercepat","Inersia hanya dimiliki benda yang sedang bergerak","Massa adalah ukuran inersia (kelembaman) dan tidak bergantung pada tempat"],a:3,
+ e:"Massa adalah ukuran inersia dan <b>tidak bergantung pada tempat</b>. Inersia adalah kecenderungan benda mempertahankan keadaan geraknya. Massa besar → inersia besar → lebih sulit dipercepat."},
+{q:"Yang dimaksud dengan kerangka inersia adalah …",
+ o:["Kerangka acuan yang selalu dipercepat","Kerangka acuan yang tidak dipercepat (diam atau bergerak dengan kecepatan tetap), misalnya konveyor yang bergerak beraturan","Kerangka acuan yang hanya berupa lantai pabrik yang diam","Kerangka acuan yang berputar dengan cepat"],a:1,
+ e:"Kerangka inersia adalah kerangka acuan yang <b>tidak dipercepat</b>. Lantai (kerangka diam) dan konveyor yang bergerak beraturan sama-sama kerangka inersia, sehingga gaya yang diamati pada benda di kedua kerangka itu sama besar."},
+{q:"Bunyi Hukum I Newton menyatakan bahwa jika gaya total yang bekerja pada benda sama dengan nol (ΣF = 0), maka …",
+ o:["Benda diam tetap diam, dan benda bergerak tetap bergerak lurus dengan kecepatan konstan","Benda yang bergerak pasti akan berhenti","Benda pasti mengalami percepatan","Benda akan bergerak melingkar"],a:0,
+ e:"Hukum I Newton (prinsip kelembaman): bila ΣF = 0, benda yang diam tetap diam dan benda yang bergerak tetap bergerak <b>lurus dengan kecepatan konstan</b>."},
+{q:"Menurut Prinsip Galileo pada slide Hukum I Newton, …",
+ o:["Untuk mempertahankan kecepatan, selalu diperlukan gaya luar","Kecepatan benda akan berkurang walaupun tidak ada gaya penghambat","Kecepatan yang diberikan pada benda tetap dipertahankan jika semua gaya penghambat (misalnya gesekan mesin) dihilangkan","Besar gaya luar selalu sebanding dengan kecepatan benda"],a:2,
+ e:"Prinsip Galileo: kecepatan yang diberikan pada benda akan tetap dipertahankan jika semua gaya penghambatnya dihilangkan. Untuk <b>mempertahankan</b> kecepatan tidak perlu gaya luar; gaya hanya diperlukan untuk <b>mengubah</b> kecepatan."},
+{q:"Kotak bermassa 10 kg bergerak di atas konveyor dengan kecepatan konstan 2 m/s (g = 10 m/s²). Besar gaya normal (N) dan resultan gaya (ΣF) pada kotak adalah …",
+ o:["N = 10 N dan ΣF = 100 N","N = 100 N dan ΣF = 20 N","N = 20 N dan ΣF = 0 N","N = 100 N dan ΣF = 0 N"],a:3,
+ e:"W = m·g = 10 × 10 = 100 N. Tidak ada percepatan vertikal, maka N = W = 100 N. Kecepatan konstan berarti a = 0, sehingga ΣF = m·a = 10 × 0 = <b>0 N</b> (sesuai Hukum I Newton)."},
+{q:"Hukum II Newton menyatakan bahwa percepatan suatu benda …",
+ o:["Sebanding dengan massa dan berbanding terbalik dengan resultan gaya","Sebanding dengan resultan gaya dan berbanding terbalik dengan massanya","Tidak bergantung pada resultan gaya maupun massa","Sama dengan hasil kali massa dan kecepatannya"],a:1,
+ e:"Hukum II Newton: a = ΣF/m. Percepatan <b>sebanding dengan resultan gaya</b> dan <b>berbanding terbalik dengan massa</b>."},
+{q:"Sebuah benda bermassa 5 kg dikenai resultan gaya 20 N. Percepatan benda tersebut adalah …",
+ o:["4 m/s²","25 m/s²","100 m/s²","0,25 m/s²"],a:0,
+ e:"a = ΣF / m = 20 N / 5 kg = <b>4 m/s²</b>."},
+{q:"Dua benda dengan massa m₁ < m₂ diberi gaya F yang sama besar. Perbandingan percepatannya adalah …",
+ o:["a₁ < a₂","a₁ = a₂","a₁ > a₂","Tidak dapat ditentukan"],a:2,
+ e:"Karena a = F/m, untuk F yang sama, massa yang lebih kecil menghasilkan percepatan yang lebih besar. Jadi m₁ < m₂ → <b>a₁ > a₂</b> (kasus forklift mengangkat kotak kecil vs kontainer)."},
+{q:"Bentuk Hukum II Newton F = dp/dt menyatakan bahwa gaya adalah …",
+ o:["Perubahan kecepatan per satuan massa","Perubahan energi per satuan waktu","Hasil kali massa dan kecepatan","Perubahan momentum per satuan waktu"],a:3,
+ e:"F = m·dv/dt = d(mv)/dt = dp/dt, dengan p = momentum. Jadi gaya adalah <b>perubahan momentum per satuan waktu</b>."},
+{q:"Pernyataan yang benar tentang pasangan gaya aksi-reaksi (Hukum III Newton) adalah …",
+ o:["Bekerja pada benda yang sama sehingga saling meniadakan","Sama besar, berlawanan arah, dan bekerja pada dua benda yang berbeda","Besar gaya reaksi selalu lebih kecil daripada gaya aksi","Hanya muncul ketika benda bergerak"],a:1,
+ e:"F_aksi = −F_reaksi. Keduanya sama besar, berlawanan arah, dan bekerja pada <b>dua benda yang berbeda</b>, sehingga tidak saling menghilangkan."},
+{q:"Bumi menarik benda bermassa dengan gaya berat W. Gaya reaksi dari gaya berat tersebut adalah …",
+ o:["Gaya normal dari lantai pada benda","Gaya gesek antara benda dan lantai","Gaya tarik benda pada bumi yang sama besar dan berlawanan arah (W_R = −W)","Gaya tegangan tali pada benda"],a:2,
+ e:"Pasangan aksi-reaksi gravitasi: bumi menarik benda (W), benda menarik bumi dengan gaya reaksi W_R = −W. Gaya normal <b>bukan</b> reaksi dari W karena keduanya bekerja pada benda yang sama."},
+{q:"Penjepit robot industri memberikan gaya 500 N mendatar ke kanan pada benda kerja. Gaya yang diberikan benda pada penjepit robot adalah …",
+ o:["500 N ke kiri","500 N ke kanan","0 N","250 N ke kiri"],a:0,
+ e:"Menurut Hukum III Newton, F_reaksi = −F_aksi. Maka gaya benda pada penjepit adalah <b>500 N ke kiri</b>: sama besar, berlawanan arah, dan bekerja pada benda yang berbeda."},
+{q:"Sebuah kotak bermassa 20 kg dengan g = 10 m/s². Besar gaya beratnya adalah …",
+ o:["2 N","20 N","30 N","200 N"],a:3,
+ e:"W = m × g = 20 kg × 10 m/s² = <b>200 N</b>."},
+{q:"Arah vektor gaya berat (W = mg) pada benda yang diletakkan di bidang horizontal, miring, maupun vertikal adalah …",
+ o:["Tegak lurus bidang sentuh","Selalu tegak lurus ke bawah (vertikal) di posisi mana pun benda diletakkan","Sejajar dengan bidang miring","Selalu ke atas"],a:1,
+ e:"Gaya berat adalah gaya gravitasi bumi sehingga arahnya <b>selalu vertikal ke bawah</b> (menuju pusat bumi), apa pun orientasi bidang tempat benda diletakkan."},
+{q:"Pada kotak yang meluncur di bidang miring (jalur chute), arah gaya normal (N) adalah …",
+ o:["Vertikal ke atas","Sejajar bidang miring ke arah bawah","Tegak lurus dan menjauhi bidang sentuh","Searah dengan gaya berat"],a:2,
+ e:"Gaya normal adalah gaya akibat sentuhan dua permukaan dan selalu <b>tegak lurus menjauhi bidang sentuh</b>. Pada bidang miring, N tidak vertikal melainkan miring tegak lurus bidang."},
+{q:"Sebuah kotak ditempel pada rel pemandu yang berdiri vertikal. Arah gaya normal pada kotak tersebut adalah …",
+ o:["Horizontal, tegak lurus dan menjauhi rel","Vertikal ke atas","Vertikal ke bawah","Sejajar dengan rel"],a:0,
+ e:"Bidang sentuhnya vertikal, sehingga garis tegak lurusnya horizontal. Gaya normal bekerja <b>horizontal menjauhi rel</b>, sedangkan W = mg tetap vertikal ke bawah."},
+{q:"Sebuah peti bermassa 50 kg berada di lantai datar dengan koefisien gesek statik μs = 0,4 (g = 10 m/s²). Gaya gesek statik maksimum antara peti dan lantai adalah …",
+ o:["20 N","200 N","500 N","2.000 N"],a:1,
+ e:"Di bidang datar N = W = m·g = 50 × 10 = 500 N. Maka fs max = μs · N = 0,4 × 500 = <b>200 N</b>."},
+{q:"Bagaimana perbandingan gaya gesek kinetik (fk) dengan gaya gesek statik maksimum (fs max) pada sepasang permukaan yang sama?",
+ o:["fk selalu lebih besar daripada fs max","fk sama dengan fs max","fk tidak bergantung pada gaya normal","fk selalu lebih kecil daripada fs max"],a:3,
+ e:"Nilai gaya gesek kinetik <b>selalu lebih kecil</b> daripada gaya gesek statik maksimum (μk < μs). Itulah sebabnya benda lebih sulit mulai bergerak dibanding mempertahankan geraknya."},
+{q:"Agar sebuah konveyor mulai bergerak dari posisi diam, gaya dorong motor harus …",
+ o:["Lebih kecil dari gaya gesek statik maksimum","Sama dengan gaya gesek kinetik","Melampaui gaya gesek statik maksimum","Tidak perlu ada, karena benda akan bergerak sendiri"],a:2,
+ e:"Selama gaya dorong masih ≤ fs max, benda tetap diam. Motor harus memberikan gaya yang <b>melampaui fs max</b> agar konveyor mulai berjalan dari posisi mati."},
+{q:"Jika massa tali/kabel pengangkat dianggap ringan (diabaikan), maka gaya tegangan tali pada kedua ujung tali yang sama dianggap …",
+ o:["Sama besar","Lebih besar di ujung atas","Nol","Berbeda bergantung panjang tali"],a:0,
+ e:"Pada tali ringan (massa diabaikan), gaya tegangan di sepanjang tali yang sama dianggap <b>sama besar</b>. Tegangan berbeda hanya terjadi antar-segmen tali yang menyangga massa yang berbeda (misalnya T₁ dan T₂ pada derek)."},
+{q:"Sebuah kotak bermassa 20 kg diam di lantai pabrik (g = 10 m/s²). Berapakah W, N, dan ΣF pada kotak?",
+ o:["W = 20 N, N = 20 N, ΣF = 0","W = 200 N, N = 200 N, ΣF = 0","W = 200 N, N = 0 N, ΣF = 200 N","W = 200 N, N = 400 N, ΣF = 200 N"],a:1,
+ e:"W = 20 × 10 = 200 N. Benda diam (a = 0) sehingga N = W = 200 N dan ΣF = N − W = <b>0 N</b>. Ini sesuai Hukum I Newton: benda diam tetap diam bila resultan gaya nol."},
+{q:"Seorang pekerja mendorong troli bermassa total 50 kg (troli + barang) dengan gaya 100 N ke kanan, sedangkan gaya hambat/gesek 20 N ke kiri. Percepatan troli adalah …",
+ o:["2,0 m/s²","0,4 m/s²","2,4 m/s²","1,6 m/s²"],a:3,
+ e:"ΣFx = F − f = 100 − 20 = 80 N (ke kanan). a = ΣF/m = 80/50 = <b>1,6 m/s²</b> ke kanan."},
+{q:"Kotak 30 kg di bidang miring bersudut 30° didorong dengan gaya 200 N sejajar bidang ke atas. Gaya gesek 50 N ke bawah bidang, g = 10 m/s², sin 30° = 0,5. Percepatan kotak sepanjang bidang adalah …",
+ o:["1,5 m/s² ke atas bidang","5 m/s² ke atas bidang","0 m/s² (kecepatan konstan)","1,5 m/s² ke bawah bidang"],a:2,
+ e:"Komponen berat sejajar bidang: W∥ = m·g·sin θ = 30 × 10 × 0,5 = 150 N (ke bawah bidang). ΣF = F − f − W∥ = 200 − 50 − 150 = 0 N. Maka a = 0/30 = <b>0 m/s²</b>; kotak bergerak dengan kecepatan konstan ke atas bidang."}
+];
+
+var TOTAL = QUESTIONS.length;
+var LETTERS = ["A","B","C","D"];
+var state = {nama:"",nim:"",prodi:"",answers:new Array(TOTAL).fill(-1),cur:0,start:null};
+
+function $(id){return document.getElementById(id);}
+function show(id){["intro","quiz","result"].forEach(function(s){$(s).classList.toggle("hidden",s!==id);});window.scrollTo(0,0);}
+function storeKey(nim){return "fisika_p5_quiz_"+nim;}
+function lsGet(k){try{return window.localStorage.getItem(k);}catch(e){return null;}}
+function lsSet(k,v){try{window.localStorage.setItem(k,v);}catch(e){}}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+
+/* ---------- identitas ---------- */
+$("prodi").addEventListener("change",function(){
+  $("prodiLain").classList.toggle("hidden",this.value!=="__lain");
+});
+$("btnStart").addEventListener("click",function(){
+  var nama=$("nama").value.trim(), nim=$("nim").value.trim();
+  var prodi=$("prodi").value==="__lain"?$("prodiLain").value.trim():$("prodi").value;
+  var err=$("introErr");
+  if(nama.length<3){err.textContent="Nama lengkap wajib diisi (minimal 3 karakter).";$("nama").focus();return;}
+  if(!/^\d{5,20}$/.test(nim)){err.textContent="NIM harus berupa angka (5–20 digit).";$("nim").focus();return;}
+  if(!prodi){err.textContent="Program studi wajib dipilih atau diisi.";return;}
+  err.textContent="";
+  var saved=lsGet(storeKey(nim));
+  if(saved){
+    try{
+      var d=JSON.parse(saved);
+      renderResult(d,true);
+      return;
+    }catch(e){}
+  }
+  state.nama=nama;state.nim=nim;state.prodi=prodi;state.start=Date.now();
+  state.answers=new Array(TOTAL).fill(-1);state.cur=0;
+  $("who").textContent=nama+" · "+nim+" · "+prodi;
+  buildGrid();renderQ();show("quiz");
+});
+
+/* ---------- kuis ---------- */
+function buildGrid(){
+  var g=$("grid");g.innerHTML="";
+  for(var i=0;i<TOTAL;i++){
+    var b=document.createElement("button");
+    b.type="button";b.className="nav-btn";b.textContent=i+1;
+    b.setAttribute("aria-label","Soal nomor "+(i+1));
+    (function(idx){b.addEventListener("click",function(){state.cur=idx;renderQ();});})(i);
+    g.appendChild(b);
+  }
+}
+function renderQ(){
+  var q=QUESTIONS[state.cur];
+  $("qnum").textContent="Soal "+(state.cur+1)+" dari "+TOTAL;
+  $("qtext").textContent=q.q;
+  var box=$("opts");box.innerHTML="";
+  q.o.forEach(function(t,i){
+    var b=document.createElement("button");
+    b.type="button";b.className="opt"+(state.answers[state.cur]===i?" sel":"");
+    b.innerHTML='<span class="k">'+LETTERS[i]+'</span><span>'+esc(t)+'</span>';
+    b.addEventListener("click",function(){state.answers[state.cur]=i;renderQ();});
+    box.appendChild(b);
+  });
+  $("btnPrev").disabled=state.cur===0;
+  $("btnNext").disabled=state.cur===TOTAL-1;
+  var n=state.answers.filter(function(x){return x>=0;}).length;
+  $("answeredCount").textContent="Terjawab: "+n+" / "+TOTAL;
+  $("bar").style.width=(n/TOTAL*100)+"%";
+  var btns=$("grid").children;
+  for(var i=0;i<btns.length;i++){
+    btns[i].className="nav-btn"+(state.answers[i]>=0?" done":"")+(i===state.cur?" cur":"");
+  }
+}
+$("btnPrev").addEventListener("click",function(){if(state.cur>0){state.cur--;renderQ();}});
+$("btnNext").addEventListener("click",function(){if(state.cur<TOTAL-1){state.cur++;renderQ();}});
+
+$("btnFinish").addEventListener("click",function(){
+  var blank=state.answers.filter(function(x){return x<0;}).length;
+  var msg=blank>0?("Masih ada "+blank+" soal yang belum dijawab. Yakin ingin mengumpulkan sekarang?"):"Kumpulkan jawaban sekarang? Kuis tidak dapat diulang.";
+  if(!window.confirm(msg)){return;}
+  var benar=0;
+  state.answers.forEach(function(a,i){if(a===QUESTIONS[i].a)benar++;});
+  var data={
+    nama:state.nama,nim:state.nim,prodi:state.prodi,answers:state.answers.slice(),
+    benar:benar,tanggal:new Date().toISOString(),
+    durasi:Math.round((Date.now()-state.start)/1000)
+  };
+  lsSet(storeKey(state.nim),JSON.stringify(data));
+  renderResult(data,false);
+});
+
+/* ---------- hasil ---------- */
+function fmtDur(s){var m=Math.floor(s/60),d=s%60;return m+" menit "+d+" detik";}
+function renderResult(d,already){
+  var benar=0,salah=0,kosong=0;
+  d.answers.forEach(function(a,i){
+    if(a<0)kosong++;else if(a===QUESTIONS[i].a)benar++;else salah++;
+  });
+  var skor=Math.round(benar/TOTAL*1000)/10;
+  $("scoreVal").textContent=String(skor).replace(".",",");
+  var p=$("predikat");
+  if(skor>=80){p.textContent="Sangat baik";p.className="badge good";}
+  else if(skor>=60){p.textContent="Cukup";p.className="badge mid";}
+  else{p.textContent="Perlu belajar lagi";p.className="badge low";}
+  $("rNama").textContent=d.nama;$("rNim").textContent=d.nim;$("rProdi").textContent=d.prodi;
+  var tgl=new Date(d.tanggal);
+  $("rWaktu").textContent=tgl.toLocaleString("id-ID",{dateStyle:"long",timeStyle:"short"})+" · durasi "+fmtDur(d.durasi);
+  $("sBenar").textContent=benar;$("sSalah").textContent=salah;$("sKosong").textContent=kosong;
+  $("doneNote").textContent=already?"Kuis untuk NIM ini sudah pernah dikerjakan; hasil yang tersimpan ditampilkan.":"Jawaban Anda telah dikumpulkan.";
+
+  var list=$("reviewList");list.innerHTML="";
+  QUESTIONS.forEach(function(q,i){
+    var a=d.answers[i];
+    var st=a<0?"blank":(a===q.a?"correct":"wrong");
+    var label=a<0?"Tidak dijawab":(a===q.a?"Benar":"Salah");
+    var div=document.createElement("div");
+    div.className="review "+st;div.setAttribute("data-st",st);
+    var h='<div class="rv-head"><span>Soal '+(i+1)+'</span><span class="tag '+st+'">'+label+'</span></div>';
+    h+='<p class="rv-q">'+esc(q.q)+'</p>';
+    q.o.forEach(function(t,j){
+      var cls="rv-opt";var mark="";
+      if(j===q.a){cls+=" right";mark=" ✔ jawaban benar";}
+      else if(j===a){cls+=" wrongpick";mark=" ✘ jawaban Anda";}
+      if(j===q.a&&j===a){mark=" ✔ jawaban Anda (benar)";}
+      h+='<div class="'+cls+'"><b>'+LETTERS[j]+'.</b> '+esc(t)+'<i>'+mark+'</i></div>';
+    });
+    h+='<div class="pemb"><b>Pembahasan:</b> '+q.e+'</div>';
+    div.innerHTML=h;list.appendChild(div);
+  });
+  show("result");
+}
+
+document.querySelectorAll(".filter button").forEach(function(b){
+  b.addEventListener("click",function(){
+    document.querySelectorAll(".filter button").forEach(function(x){x.classList.remove("on");});
+    b.classList.add("on");
+    var f=b.getAttribute("data-f");
+    document.querySelectorAll("#reviewList .review").forEach(function(r){
+      var st=r.getAttribute("data-st");
+      var vis=f==="all"||(f==="correct"&&st==="correct")||(f==="wrong"&&st!=="correct");
+      r.classList.toggle("hidden",!vis);
+    });
+  });
+});
+
+$("btnPdf").addEventListener("click",function(){
+  // pastikan semua pembahasan tampil di PDF
+  document.querySelectorAll("#reviewList .review").forEach(function(r){r.classList.remove("hidden");});
+  document.querySelectorAll(".filter button").forEach(function(x){x.classList.toggle("on",x.getAttribute("data-f")==="all");});
+  var old=document.title;
+  document.title="Hasil_Kuis_Fisika_P5_"+($("rNim").textContent||"")+"_"+($("rNama").textContent||"").replace(/\s+/g,"_");
+  window.print();
+  setTimeout(function(){document.title=old;},800);
+});
+
+})();
+</script>
+</body>
+</html>
